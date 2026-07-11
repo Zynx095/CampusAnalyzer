@@ -6,8 +6,8 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Open Muapi Assistant",
-  description: "Open source AI creative assistant powered by Muapi API",
+  title: "PRANA | Design Intelligence",
+  description: "Local-first AI creative intelligence and architectural system",
 };
 
 export default function RootLayout({ children }) {
@@ -17,7 +17,20 @@ export default function RootLayout({ children }) {
         <Providers>
           {children}
         </Providers>
-        <Toaster position="top-right" />
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              background: '#0A0A0A',
+              color: '#FAFAFA',
+              border: '1px solid rgba(255,255,255,0.06)',
+              fontSize: '12px',
+              fontFamily: 'monospace',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }
+          }}
+        />
       </body>
     </html>
   );

@@ -14,9 +14,12 @@ load_dotenv(dotenv_path=env_path)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+# Add this import at the top of main.py
+from app.routers import campus_router
 
 from app.routers import creative_agent_router
 from app.routers import local_generation_router
+from app.routers import projects_router
 
 
 app = FastAPI(
@@ -42,6 +45,15 @@ app.include_router(
     prefix="/api/local-generation",
     tags=["local-generation"],
 )
+app.include_router(
+    projects_router.router,
+    prefix="/api/projects",
+    tags=["projects"],
+)
+
+
+# Add this line where your other routers are included
+app.include_router(campus_router.router)
 
 
 generated_dir = (

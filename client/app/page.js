@@ -1,597 +1,425 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import {
-  FiPlus, FiUpload, FiSend, FiSearch, FiZap,
-  FiImage, FiLayout, FiTerminal, FiChevronDown,
-  FiSun, FiMoon, FiMoreHorizontal, FiArrowRight, FiTrash2,
-  FiCode, FiCopy, FiX
-} from "react-icons/fi";
-import { CgTerminal } from "react-icons/cg";
-import { RiSparklingLine, RiRobot2Line } from "react-icons/ri";
-import { GoBook, GoLightBulb } from "react-icons/go";
-import { HiOutlineCube } from "react-icons/hi";
-import { useApi } from "@/context/ApiContext";
-import { useTheme } from "next-themes";
-import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Command, Layout, Box, Image as ImageIcon, Sparkles, 
+  ArrowRight, Trash2, Maximize2, Cpu, Upload, Leaf, Sun, 
+  Car, Accessibility, Building, CheckCircle2 
+} from "lucide-react";
 import toast from "react-hot-toast";
 import Navbar from "@/components/Navbar";
+import SystemStatus from "@/components/SystemStatus";
+import { useRouter } from "next/navigation";
 
 const LOCAL_API_BASE = "http://127.0.0.1:8000";
 const LOCAL_GENERATION_API = `${LOCAL_API_BASE}/api/local-generation`;
+const CAMPUS_ANALYSIS_API = `${LOCAL_API_BASE}/api/campus/analyze`;
 
 const LOCAL_SKILLS = [
-  {
-    name: "image-generation",
-    description: "Generate original images locally with FLUX Schnell."
-  },
-  {
-    name: "campus-vision",
-    description: "Create future-facing architectural and campus concepts."
-  },
-  {
-    name: "poster-studio",
-    description: "Generate premium campaign and event poster concepts."
-  },
-  {
-    name: "brand-concept",
-    description: "Explore visual identity and campaign directions."
-  }
+  { name: "image-generation", label: "IMAGE", icon: <ImageIcon size={14} />, desc: "Open-ended visual synthesis." },
+  { name: "poster-studio", label: "POSTER", icon: <Layout size={14} />, desc: "Campaign systems and typographic communication." },
+  { name: "brand-concept", label: "BRAND", icon: <Box size={14} />, desc: "Identity directions and visual territories." },
+  { name: "campus-vision", label: "CAMPUS", icon: <Leaf size={14} />, desc: "Future-facing architectural and spatial concepts." }
 ];
 
-export default function AssistantDashboard() {
+export default function PRANADashboard() {
   const router = useRouter();
-  const { userData } = useApi();
   const [mounted, setMounted] = useState(false);
-  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [health, setHealth] = useState({ status: "checking" });
   
-  // Local Generation States
+  // Tabs: "studio", "analysis", "projects"
+  const [activeTab, setActiveTab] = useState("studio");
+
+  // Generation State
+  const [input, setInput] = useState("");
   const [generating, setGenerating] = useState(false);
   const [generatedProjects, setGeneratedProjects] = useState([]);
-  const [skills, setSkills] = useState(LOCAL_SKILLS);
-  
-  const [showSkillsMenu, setShowSkillsMenu] = useState(false);
-  const [activeSkill, setActiveSkill] = useState(null);
-  const [showMentionPopup, setShowMentionPopup] = useState(false);
-  const [mentionQuery, setMentionQuery] = useState("");
-  const [mentionCursorPos, setMentionCursorPos] = useState(0);
-  const [hoveredAsset, setHoveredAsset] = useState(null);
-  const textareaRef = React.useRef(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [attachments, setAttachments] = useState([]);
-  const fileInputRef = React.useRef(null);
-  const [placeholderText, setPlaceholderText] = useState("");
+  const [activeSkill, setActiveSkill] = useState(LOCAL_SKILLS[0]);
+  const textareaRef = useRef(null);
 
-  const placeholders = React.useMemo(() => [
-    "Ask the agent to generate an image...",
-    "Ask the agent to create a video...",
-    "Ask the agent to edit an image...",
-    "Ask the agent to plan a social campaign..."
-  ], []);
+  // Campus Analysis State
+  const [analysisFile, setAnalysisFile] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    let currentPlaceholderIdx = 0;
-    let currentCharIdx = 0;
-    let isDeleting = false;
-    let typingTimer;
+    // Avoid synchronous setState during render by deferring mounting flag
+    let isMounted = true;
+    const mountTimer = setTimeout(() => {
+      if (isMounted) setMounted(true);
+    }, 0);
 
-    const type = () => {
-      const currentString = placeholders[currentPlaceholderIdx];
-      
-      if (isDeleting) {
-        setPlaceholderText(currentString.substring(0, currentCharIdx - 1));
-        currentCharIdx--;
-      } else {
-        setPlaceholderText(currentString.substring(0, currentCharIdx + 1));
-        currentCharIdx++;
+    const loadProjects = async () => {
+      try {
+        const { data } = await axios.get(`${LOCAL_API_BASE}/api/projects`);
+        const projects = (data.projects || []).map((project) => ({
+          ...project,
+          assets: (project.assets || []).map((asset) => ({
+            ...asset,
+            url: asset.url.startsWith("http") ? asset.url : `${LOCAL_API_BASE}${asset.url}`
+          }))
+        }));
+        if (isMounted) setGeneratedProjects(projects);
+      } catch (err) {
+        if (isMounted) console.error("Failed to load local projects:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-
-      let typeSpeed = isDeleting ? 20 : 50;
-
-      if (!isDeleting && currentCharIdx === currentString.length) {
-        typeSpeed = 2000;
-        isDeleting = true;
-      } else if (isDeleting && currentCharIdx === 0) {
-        isDeleting = false;
-        currentPlaceholderIdx = (currentPlaceholderIdx + 1) % placeholders.length;
-        typeSpeed = 500;
-      }
-
-      typingTimer = setTimeout(type, typeSpeed);
     };
 
-    typingTimer = setTimeout(type, 1000);
+    return () => {
+      isMounted = false;
+      clearTimeout(mountTimer);
+    };
 
-    return () => clearTimeout(typingTimer);
-  }, [placeholders]);
+    const checkHealth = async () => {
+      try {
+        const { data } = await axios.get(`${LOCAL_GENERATION_API}/health`);
+        if (isMounted) setHealth(data);
+      } catch (err) {
+        if (isMounted) setHealth({ status: "offline" });
+      }
+    };
 
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setMounted(true);
-      setLoading(false);
-    });
+    loadProjects();
+    checkHealth();
+    const healthInterval = setInterval(checkHealth, 30000);
 
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      isMounted = false;
+      clearInterval(healthInterval);
+    };
   }, []);
 
-  const generateLocally = async (promptText = "") => {
-    const cleanPrompt = promptText.trim();
-
-    if (!cleanPrompt) {
-      toast.error("Enter a prompt first");
-      return;
-    }
-
-    if (generating) return;
+  const generateLocally = async () => {
+    const cleanPrompt = input.trim();
+    if (!cleanPrompt || generating) return;
 
     setGenerating(true);
-
-    const generationToast = toast.loading(
-      "PRANA is generating locally on your RTX 5050..."
-    );
+    const toastId = toast.loading("Initializing local inference engine...");
 
     try {
-      const effectivePrompt = activeSkill
-        ? `${cleanPrompt}. Creative mode: ${activeSkill.name.replace(/-/g, " ")}. ${activeSkill.description}`
-        : cleanPrompt;
-
       const { data } = await axios.post(
         `${LOCAL_GENERATION_API}/image`,
         {
-          prompt: effectivePrompt,
-          negative_prompt:
-            "blurry, low quality, distorted, malformed, duplicate, watermark, unreadable text",
-          width: 768,
-          height: 768
+          prompt: cleanPrompt,
+          mode: activeSkill.name,
+          negative_prompt: "",
+          width: activeSkill.name === "poster-studio" ? 512 : 768,
+          height: activeSkill.name === "poster-studio" ? 768 : 768
         },
-        {
-          timeout: 360000
-        }
+        { timeout: 1200000 }
       );
 
-      const absoluteAssetUrl = data.asset_url.startsWith("http")
-        ? data.asset_url
-        : `${LOCAL_API_BASE}${data.asset_url}`;
+      const absoluteAssetUrl = data.asset_url.startsWith("http") ? data.asset_url : `${LOCAL_API_BASE}${data.asset_url}`;
 
       const localProject = {
-        id: data.prompt_id || Date.now().toString(),
+        id: data.prompt_id,
         name: cleanPrompt,
-        prompt: cleanPrompt,
+        prompt: data.original_prompt,
+        effective_prompt: data.effective_prompt,
         provider: data.provider,
+        model: data.model,
         seed: data.seed,
         width: data.width,
         height: data.height,
+        filename: data.filename,
+        asset_url: data.asset_url,
+        mode: data.mode,
         created_at: new Date().toISOString(),
-        assets: [
-          {
-            url: absoluteAssetUrl,
-            kind: "image"
-          }
-        ]
+        assets: [{ url: absoluteAssetUrl, kind: "image" }]
       };
 
-      setGeneratedProjects((prev) => [
-        localProject,
-        ...prev
-      ]);
-
+      setGeneratedProjects((prev) => [localProject, ...prev]);
       setInput("");
-      setActiveSkill(null);
-
-      toast.success(
-        "Generated locally with FLUX on RTX 5050",
-        { id: generationToast }
-      );
+      setActiveTab("projects");
+      toast.success("Generation complete.", { id: toastId });
     } catch (err) {
-      console.error("Local generation failed:", err);
-
-      const detail =
-        err?.response?.data?.detail ||
-        err?.message ||
-        "Local generation failed";
-
-      toast.error(detail, {
-        id: generationToast
-      });
+      toast.error(`Inference Error: ${err?.response?.data?.detail || err?.message}`, { id: toastId });
     } finally {
       setGenerating(false);
     }
   };
 
-  const removeAttachment = (url) => {
-    setAttachments(prev => prev.filter(a => a.url !== url));
-  };
-
-  const selectMention = (item, type) => {
-    const before = input.substring(0, mentionCursorPos);
-    const after = input.substring(textareaRef.current.selectionStart);
-    
-    if (type === "skill") {
-      setActiveSkill(item);
-      setInput(before + after); 
-    } else {
-      const insertion = `@${item.asset_label || "asset"}`;
-      setInput(before + insertion + after);
-    }
-    
-    setShowMentionPopup(false);
-    setTimeout(() => textareaRef.current?.focus(), 10);
-  };
-
-  const processFile = async (file) => {
+  const handleAnalysisUpload = async (e) => {
+    const file = e.target.files?.[0];
     if (!file) return;
-    toast("Local image editing is being connected next");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+    setAnalysisFile(URL.createObjectURL(file));
+    setAnalyzing(true);
+    setAnalysisResult(null);
 
-  const handleFileUpload = (e) => processFile(e.target.files?.[0]);
+    const formData = new FormData();
+    formData.append("image", file);
 
-  const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      
-      if (input.trim() && !generating) {
-        generateLocally(input);
-      }
+    const toastId = toast.loading("Running architectural vision analysis...");
+
+    try {
+      const { data } = await axios.post(CAMPUS_ANALYSIS_API, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      setAnalysisResult(data);
+      toast.success("Analysis complete.", { id: toastId });
+    } catch (err) {
+      toast.error(`Analysis Error: ${err?.response?.data?.detail || err?.message}`, { id: toastId });
+      setAnalysisFile(null);
+    } finally {
+      setAnalyzing(false);
     }
   };
 
-  const filteredSkills = skills.filter(s => s.name.toLowerCase().includes(mentionQuery.toLowerCase()));
-  const filteredAssets = attachments.map((a, i) => ({ ...a, asset_label: `asset_${i+1}` })).filter(a => a.asset_label.includes(mentionQuery.toLowerCase()));
+  const deleteProject = async (e, sessionId) => {
+    e.stopPropagation();
+    try {
+      await axios.delete(`${LOCAL_API_BASE}/api/projects/${encodeURIComponent(sessionId)}`);
+      setGeneratedProjects((prev) => prev.filter((p) => p.id !== sessionId));
+      toast.success("Project purged.");
+    } catch (err) {
+      toast.error("Could not purge project.");
+    }
+  };
 
   if (!mounted) return null;
 
   return (
-    <div className="h-dvh w-full text-sm flex flex-col items-center bg-bg-page animate-fade-in text-primary-text">
+    <div className="min-h-dvh w-full bg-background selection:bg-accent selection:text-black">
       <Navbar />
-      <main className="flex flex-col gap-6 items-center w-full h-full overflow-y-auto">
-        <div className="flex-1 flex flex-col gap-6 sm:gap-8 items-center w-full max-w-7xl pt-6 sm:pt-8 pb-12 px-4 sm:px-8 lg:px-0">
-          <h1 className="text-5xl font-bold tracking-tight text-center flex items-center gap-3">
-            Design is easier with <span className="text-primary">Agents</span>
-          </h1>
-          <p className="text-secondary-text text-lg text-center">
-            The open-source design agent that gets you and gets the job done
-          </p>
-          <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest">
-            <a href="https://github.com/Anil-matcha/Open-Lovart" target="_blank" className="flex items-center gap-2 px-4 py-2 bg-bg-card border border-divider rounded-full shadow-sm hover:shadow-md hover:border-primary/30 transition-all text-secondary-text hover:text-primary">
-              <CgTerminal size={12} className="text-primary" />
-              View Source
-            </a>
+      
+      <main className="pt-24 pb-20 px-6 lg:px-12 max-w-[1800px] mx-auto flex flex-col gap-12">
+        
+        {/* Header & Telemetry */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mt-8">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl md:text-5xl font-light tracking-tight text-primary">
+              Design <span className="text-secondary">Intelligence.</span>
+            </h1>
+            <p className="text-sm font-mono text-muted uppercase tracking-widest">
+              Local Inference Engine · Operational
+            </p>
           </div>
-          <div className="w-full max-w-3xl relative">
-            <div className="bg-bg-card border border-divider rounded-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-1 focus-within:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                autoFocus
-                onChange={(e) => {
-                  const val = e.target.value;
-                  const pos = e.target.selectionStart;
-                  setInput(val);
-                  
-                  const lastAtPos = val.lastIndexOf("@", pos - 1);
-                  if (lastAtPos !== -1 && (lastAtPos === 0 || val[lastAtPos - 1] === " ")) {
-                    const query = val.substring(lastAtPos + 1, pos);
-                    if (!query.includes(" ")) {
-                      setMentionQuery(query);
-                      setMentionCursorPos(lastAtPos);
-                      setShowMentionPopup(true);
-                    } else {
-                      setShowMentionPopup(false);
-                    }
-                  } else {
-                    setShowMentionPopup(false);
-                  }
-                }}
-                onKeyDown={handleKey}
-                placeholder={placeholderText}
-                className="w-full bg-transparent border-none focus:ring-0 text-lg p-4 h-24 resize-none placeholder:text-secondary-text/50 outline-none scrollbar-subtle"
-              />
-              <div className="flex items-center justify-between px-2 pb-2">
-                <div className="flex items-center gap-1 relative">
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    onChange={handleFileUpload}
-                  />
-                  <button 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-2 hover:bg-bg-page rounded-full text-secondary-text transition-colors relative"
-                    title="Upload File"
-                  >
-                    {uploading ? (
-                      <div className="w-12 h-12 rounded border border-divider border-dashed flex flex-col items-center justify-center bg-bg-page/50">
-                        <span className="border-2 border-t-transparent border-primary rounded-full w-7 h-7 animate-spin absolute"></span>
-                        <span className="text-[10px] font-bold text-secondary-text z-10">{uploadProgress}%</span>
-                      </div>
-                    ) : (
-                      <FiPlus size={20} />
-                    )}
-                  </button>
-                  <button 
-                    onClick={() => setShowSkillsMenu(!showSkillsMenu)}
-                    className={`p-2 hover:bg-bg-page rounded-full transition-colors ${activeSkill || showSkillsMenu ? "text-primary bg-primary/10" : "text-secondary-text"}`}
-                    title="Skills"
-                  >
-                    <GoBook size={20} />
-                  </button>
+          <SystemStatus health={health} />
+        </div>
 
-                  {/* Mention & Attachment Preview Bar */}
-                  {(uploading || attachments.length > 0 || input.includes("@")) && (
-                    <div className="absolute bottom-full left-0 mb-1 flex flex-wrap gap-2 bg-bg-card border border-divider rounded shadow-xl z-10 animate-in slide-in-from-bottom-2 duration-300">
-                      {attachments.map((att, i) => (
-                        <div 
-                          key={i} 
-                          className="relative group flex items-center gap-2 px-2 py-1 bg-bg-page border border-divider rounded cursor-help hover:border-primary/50 transition-all"
-                          onMouseEnter={() => setHoveredAsset(att)}
-                          onMouseLeave={() => setHoveredAsset(null)}
-                        >
-                          <div className="w-5 h-5 rounded overflow-hidden">
-                            {att.kind === "image" ? <img src={att.url} className="w-full h-full object-cover" /> : <FiTerminal size={10} />}
-                          </div>
-                          <span className="text-[10px] font-bold text-secondary-text">{`asset_${i+1}`}</span>
-                        </div>
-                      ))}
-                      
-                      {/* Detection for @asset_N in text */}
-                      {input.match(/@asset_\d+/g)?.map(match => {
-                        const index = parseInt(match.split('_')[1]) - 1;
-                        const asset = attachments[index];
-                        if (!asset) return null;
-                        return (
-                          <div 
-                            key={match}
-                            className="relative group flex items-center gap-2 px-2 py-1 bg-primary/5 border border-primary/20 rounded-lg cursor-help hover:border-primary/50 transition-all"
-                            onMouseEnter={() => setHoveredAsset(asset)}
-                            onMouseLeave={() => setHoveredAsset(null)}
-                          >
-                            <div className="w-5 h-5 rounded overflow-hidden bg-primary/10 flex items-center justify-center text-primary">
-                              {asset.kind === "image" ? <img src={asset.url} className="w-full h-full object-cover" /> : <RiSparklingLine size={10} />}
-                            </div>
-                            <span className="text-[10px] font-bold text-primary">{match}</span>
-                          </div>
-                        );
-                      })}
-
-                      {uploading && (
-                        <div className="flex items-center gap-2 px-2 py-1 bg-bg-page border border-divider border-dashed rounded-lg">
-                          <div className="w-3 h-3 border-2 border-t-transparent border-primary rounded-full animate-spin" />
-                          <span className="text-[10px] font-bold text-secondary-text">{uploadProgress}%</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {hoveredAsset && (
-                    <div className="absolute bottom-full left-0 mb-10 w-72 aspect-square bg-bg-card border border-divider rounded-md shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden z-[110] animate-in fade-in zoom-in-95 duration-200 pointer-events-none">
-                      {hoveredAsset.kind === "image" ? (
-                        <img src={hoveredAsset.url} className="w-full h-full object-cover" />
-                      ) : hoveredAsset.kind === "video" ? (
-                        <video src={hoveredAsset.url} className="w-full h-full object-cover" autoPlay muted loop />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-bg-page gap-3 p-6 text-center">
-                          <FiTerminal size={48} className="text-primary opacity-20" />
-                          <div className="text-xs font-medium text-secondary-text truncate w-full">{hoveredAsset.url.split('/').pop()}</div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {showMentionPopup && (
-                    <div className="absolute bottom-full left-0 mb-2 flex items-end gap-3 z-50">
-                      <div className="w-64 bg-bg-card border border-divider rounded shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
-                        <div className="p-2 border-b border-divider/30 text-[10px] font-bold text-secondary-text uppercase tracking-widest bg-bg-page/50">
-                          Mentions
-                        </div>
-                        <div className="max-h-60 overflow-y-auto scrollbar-subtle py-1">
-                          {filteredSkills.length > 0 && (
-                            <div className="px-3 py-1.5 text-[9px] font-bold text-primary uppercase opacity-60">Skills</div>
-                          )}
-                          {filteredSkills.map(skill => (
-                            <button
-                              key={skill.name}
-                              onClick={() => selectMention(skill, "skill")}
-                              className="w-full text-left px-3 py-2 hover:bg-bg-page transition-colors flex items-center gap-2 group"
-                            >
-                              <RiSparklingLine size={12} className="text-primary opacity-50 group-hover:opacity-100" />
-                              <span className="text-xs font-medium text-primary-text">{skill.name}</span>
-                            </button>
-                          ))}
-                          {filteredSkills.length === 0 && (
-                            <div className="px-4 py-8 text-center text-secondary-text text-xs italic opacity-50">No matches found</div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="relative">
-                    {showSkillsMenu && (
-                      <div className="fixed inset-0 z-50 bg-bg-page/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
-                        <div className="fixed inset-0" onClick={() => setShowSkillsMenu(false)} />
-                        <div className="relative w-full max-w-2xl bg-bg-card border border-divider rounded-md shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden animate-in zoom-in-95 duration-200">
-                          <div className="px-4 py-3 border-b border-divider flex items-center justify-between bg-bg-page/30">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20">
-                                <GoBook size={24} />
-                              </div>
-                              <div>
-                                <h3 className="text-xl font-bold text-primary-text tracking-tight">Agent Skills</h3>
-                                <p className="text-xs text-secondary-text font-medium opacity-70">Power up your creative workflow with specialized AI experts.</p>
-                              </div>
-                            </div>
-                            <button 
-                              onClick={() => setShowSkillsMenu(false)}
-                              className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-bg-page border border-divider rounded text-xs font-bold text-secondary-text hover:text-primary hover:border-primary/30 transition-all"
-                            >
-                              <CgTerminal size={14} />
-                              Dismiss
-                            </button>
-                          </div>
-                          <div className="p-2 max-h-[60vh] overflow-y-auto scrollbar-subtle grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {skills.map(s => (
-                              <button
-                                key={s.name}
-                                onClick={() => { setActiveSkill(s); setShowSkillsMenu(false); }}
-                                className={`group relative flex flex-col gap-2 p-4 rounded transition-all text-left border ${activeSkill?.name === s.name ? "bg-primary/5 border-primary/30 ring-1 ring-primary/20" : "bg-bg-page/50 border-divider/50 hover:border-primary/30 hover:bg-bg-page hover:shadow-md"}`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded flex items-center justify-center transition-all ${activeSkill?.name === s.name ? "bg-primary text-white scale-110 shadow-lg shadow-primary/20" : "bg-bg-card text-primary border border-divider group-hover:scale-110"}`}>
-                                      <RiSparklingLine size={16} />
-                                    </div>
-                                    <div className="font-bold text-sm tracking-tight capitalize group-hover:text-primary transition-colors">{s.name.replace(/-/g, ' ')}</div>
-                                  </div>
-                                  {activeSkill?.name === s.name && <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
-                                </div>
-                                <div className="text-[11px] text-secondary-text line-clamp-2 leading-relaxed opacity-80 h-8">{s.description || "Expert agent workflow for high-quality generation."}</div>
-                              </button>
-                            ))}
-                          </div>
-                          <div className="px-4 py-2 bg-bg-page/50 border-t border-divider flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-secondary-text uppercase tracking-widest opacity-60">
-                              <RiRobot2Line size={14} />
-                              Design Protocol v1.2
-                            </div>
-                            <button 
-                              onClick={() => setShowSkillsMenu(false)}
-                              className="px-4 py-2 text-xs font-bold text-primary-text hover:bg-bg-page rounded transition-colors border border-transparent hover:border-divider"
-                            >
-                              Dismiss
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {activeSkill && (
-                    <div className="flex items-center gap-1.5 px-2 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary text-[10px] font-bold animate-in zoom-in-95">
-                      <RiSparklingLine size={12} />
-                      {activeSkill.name}
-                      <button onClick={() => setActiveSkill(null)} className="hover:text-primary-text ml-1">&#x2715;</button>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  {attachments.length > 0 && (
-                    <div className="flex items-center -space-x-2 mr-2">
-                      {attachments.map((a, i) => (
-                        <div key={i} className="w-6 h-6 rounded-full border-2 border-bg-card bg-bg-page overflow-hidden shadow-sm">
-                          {a.kind === "image" ? <img src={a.url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-black"><FiTerminal size={10} className="text-white" /></div>}
-                        </div>
-                      ))}
-                      <button onClick={() => setAttachments([])} className="w-6 h-6 rounded-full border-2 border-bg-card bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors z-10">
-                        <FiPlus size={12} className="rotate-45" />
-                      </button>
-                    </div>
-                  )}
-                  <button 
-                    onClick={() => input.trim() && !generating && generateLocally(input)}
-                    disabled={!input.trim() || generating}
-                    className={`p-2 rounded-full transition-all ${
-                      input.trim() && !generating
-                        ? "bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105"
-                        : "bg-bg-page text-secondary-text/30 cursor-not-allowed"
-                    }`}
-                    title="Generate locally with PRANA"
-                    aria-label="Generate locally"
-                  >
-                    {generating ? (
-                      <RiSparklingLine size={18} className="animate-spin" />
-                    ) : (
-                      <FiSend size={18} />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="w-full">
-            <h2 className="text-xl font-bold mb-6">Recent Projects</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {/* New Project Card */}
-              <button 
-                onClick={() => router.push("/canvas")}
-                className="group aspect-[16/10] bg-bg-card border-2 border-dashed border-divider rounded-md flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all"
-              >
-                <div className="w-10 h-10 rounded-full bg-bg-page border border-divider flex items-center justify-center text-secondary-text group-hover:text-primary group-hover:border-primary group-hover:scale-110 transition-all">
-                  <FiPlus size={24} />
-                </div>
-                <span className="text-xs font-bold text-secondary-text group-hover:text-primary">New Project</span>
-              </button>
-
-              {generating && (
-                <div className="aspect-[16/10] bg-bg-card border border-primary/30 rounded-md animate-pulse flex flex-col items-center justify-center gap-3">
-                  <RiSparklingLine size={28} className="text-primary animate-spin" />
-                  <div className="text-xs font-bold text-primary">Generating locally</div>
-                  <div className="text-[10px] text-secondary-text">FLUX Schnell · RTX 5050</div>
-                </div>
+        {/* Custom Segmented Control */}
+        <div className="flex items-center gap-2 border-b border-architectural pb-px">
+          {["studio", "analysis", "projects"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`relative px-6 py-3 text-xs font-mono tracking-widest uppercase transition-colors ${activeTab === tab ? 'text-accent' : 'text-secondary hover:text-primary'}`}
+            >
+              {tab === "studio" ? "Creation Studio" : tab === "analysis" ? "Campus Analysis" : "Project Library"}
+              {activeTab === tab && (
+                <motion.div layoutId="activeTab" className="absolute bottom-0 inset-x-0 h-px bg-accent" />
               )}
+            </button>
+          ))}
+        </div>
 
-              {/* Local Generated Projects Cards */}
-              {generatedProjects.map((session) => (
-                <div 
-                  key={session.id}
-                  onClick={() => {
-                    const assetUrl = session.assets?.[0]?.url;
-                    if (assetUrl) {
-                      window.open(assetUrl, "_blank", "noopener,noreferrer");
-                    }
-                  }}
-                  className="group relative aspect-[16/10] bg-bg-card border border-divider rounded overflow-hidden cursor-pointer hover:shadow-xl hover:border-primary/50 transition-all"
-                >
-                  <div className="h-full w-full grid grid-cols-2 grid-rows-2 gap-0.5 bg-divider/20">
-                    {session.assets && session.assets.length > 0 ? (
-                      session.assets.map((asset, i) => (
-                        <div key={i} className={`relative overflow-hidden ${session.assets.length === 1 ? 'col-span-2 row-span-2' : session.assets.length === 2 ? 'row-span-2' : ''}`}>
-                          {asset.kind === "image" ? (
-                            <img src={asset.url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full bg-black/5 flex items-center justify-center"><FiImage className="text-secondary-text/20" size={32} /></div>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="col-span-2 row-span-2 flex items-center justify-center bg-bg-page">
-                        <RiRobot2Line size={48} className="text-secondary-text/10" />
-                      </div>
-                    )}
-                    {session.assets && session.assets.length > 0 && session.assets.length < 4 && Array.from({ length: 4 - session.assets.length }).map((_, i) => (
-                      <div key={`empty-${i}`} className="bg-bg-page/50" />
+        {/* Tab Content Area */}
+        <AnimatePresence mode="wait">
+          
+          {/* TAB 1: STUDIO */}
+          {activeTab === "studio" && (
+            <motion.section 
+              key="studio"
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="w-full max-w-5xl flex flex-col gap-6"
+            >
+              <div className="glass-panel p-2 rounded-md focus-within:border-accent/50 transition-colors">
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateLocally(); } }}
+                  placeholder="Describe the architectural concept, visual system, or typographic poster..."
+                  className="w-full bg-transparent border-none focus:ring-0 text-lg md:text-xl p-6 h-48 resize-none placeholder:text-muted outline-none font-light leading-relaxed"
+                  disabled={generating}
+                />
+                
+                <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-architectural gap-4">
+                  <div className="flex flex-wrap gap-2">
+                    {LOCAL_SKILLS.map(skill => (
+                      <button
+                        key={skill.name}
+                        onClick={() => setActiveSkill(skill)}
+                        className={`flex items-center gap-2 px-4 py-2 text-[10px] font-mono tracking-widest uppercase rounded-sm border transition-all ${
+                          activeSkill.name === skill.name 
+                            ? "bg-accent/10 border-accent/40 text-accent shadow-[0_0_15px_rgba(163,255,18,0.1)]" 
+                            : "bg-elevated border-architectural text-secondary hover:border-muted hover:text-primary"
+                        }`}
+                      >
+                        {skill.icon} {skill.label}
+                      </button>
                     ))}
                   </div>
 
-                  <button
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      setGeneratedProjects((prev) => prev.filter((p) => p.id !== session.id));
-                      toast.success("Project removed"); 
-                    }}
-                    className="absolute top-2 right-2 z-10 p-1.5 rounded bg-black/60 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all"
-                    title="Remove project"
+                  <button 
+                    onClick={generateLocally}
+                    disabled={!input.trim() || generating}
+                    className={`flex items-center gap-3 px-8 py-3 text-xs font-mono tracking-widest uppercase rounded-sm transition-all ${
+                      input.trim() && !generating
+                        ? "bg-primary text-background hover:bg-accent hover:text-black"
+                        : "bg-elevated text-muted border border-architectural cursor-not-allowed"
+                    }`}
                   >
-                    <FiTrash2 size={14} />
+                    {generating ? <><Sparkles size={14} className="animate-spin" /> INFERRING</> : <><Command size={14} /> GENERATE</>}
                   </button>
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                    <div className="text-white font-bold text-sm truncate">{session.name || "Untitled"}</div>
-                    <div className="text-white/60 text-[10px] mt-1">{session.assets?.length || 0} assets</div>
-                  </div>
-                  
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-bg-card/90 backdrop-blur-sm border-t border-divider opacity-100 group-hover:opacity-0 transition-opacity">
-                    <div className="text-primary-text font-bold text-xs truncate">{session.name || "Untitled Session"}</div>
-                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              </div>
+              <div className="text-[10px] font-mono text-muted tracking-widest uppercase px-2">
+                ACTIVE PIPELINE: {activeSkill.name === "poster-studio" ? "QWEN GGUF (512x768)" : "FLUX SCHNELL (768x768)"}
+              </div>
+            </motion.section>
+          )}
+
+          {/* TAB 2: CAMPUS ANALYSIS */}
+          {activeTab === "analysis" && (
+            <motion.section 
+              key="analysis"
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8"
+            >
+              <div className="flex flex-col gap-6">
+                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAnalysisUpload} />
+                
+                {!analysisFile ? (
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full aspect-[4/3] glass-panel border-dashed border-muted hover:border-accent flex flex-col items-center justify-center gap-4 transition-colors group rounded-sm"
+                  >
+                    <div className="p-4 rounded-full bg-elevated group-hover:bg-accent/10 transition-colors">
+                      <Upload size={24} className="text-secondary group-hover:text-accent" />
+                    </div>
+                    <div className="flex flex-col items-center gap-1 text-center">
+                      <span className="text-sm font-mono uppercase tracking-widest text-primary">Upload Campus Imagery</span>
+                      <span className="text-xs text-muted">JPEG, PNG up to 15MB</span>
+                    </div>
+                  </button>
+                ) : (
+                  <div className="w-full aspect-[4/3] glass-panel rounded-sm overflow-hidden relative group">
+                    <img src={analysisFile} alt="Analysis" className="w-full h-full object-cover" />
+                    <button onClick={() => { setAnalysisFile(null); setAnalysisResult(null); }} className="absolute top-4 right-4 p-2 bg-background/80 backdrop-blur rounded-sm text-secondary hover:text-red-400 border border-architectural">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="glass-panel rounded-sm p-8 flex flex-col">
+                {analyzing ? (
+                  <div className="h-full flex flex-col items-center justify-center gap-6">
+                    <div className="relative w-16 h-16">
+                      <div className="absolute inset-0 border border-accent/20 rounded-full animate-ping" />
+                      <div className="absolute inset-2 border border-accent/40 rounded-full animate-spin" />
+                      <Sparkles size={20} className="absolute inset-0 m-auto text-accent" />
+                    </div>
+                    <span className="text-xs font-mono tracking-widest text-accent uppercase animate-pulse">Running Vision Diagnostics</span>
+                  </div>
+                ) : analysisResult ? (
+                  <div className="flex flex-col gap-8 h-full overflow-y-auto custom-scrollbar pr-2">
+                    <div className="flex items-end justify-between border-b border-architectural pb-6">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-mono tracking-widest text-accent uppercase">Overall Rating</span>
+                        <span className="text-4xl font-light text-primary">{analysisResult.overall_score}<span className="text-muted text-lg">/100</span></span>
+                      </div>
+                      <div className="px-3 py-1 bg-elevated border border-architectural rounded-sm text-xs font-mono uppercase text-secondary">
+                        Condition: <span className="text-primary">{analysisResult.building_condition}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      {[
+                        { label: "Green Cover", val: analysisResult.green_cover, icon: <Leaf size={14}/> },
+                        { label: "Walkability", val: analysisResult.walkability, icon: <Accessibility size={14}/> },
+                        { label: "Solar Potential", val: analysisResult.solar_potential, icon: <Sun size={14}/> },
+                        { label: "Parking Efficiency", val: analysisResult.parking_efficiency, icon: <Car size={14}/> }
+                      ].map(metric => (
+                        <div key={metric.label} className="flex flex-col p-4 bg-elevated border border-architectural rounded-sm gap-3">
+                          <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-muted">
+                            {metric.icon} {metric.label}
+                          </div>
+                          <div className="w-full h-1 bg-background rounded-full overflow-hidden">
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${metric.val}%` }} className="h-full bg-accent" transition={{ duration: 1, ease: "easeOut" }} />
+                          </div>
+                          <div className="text-lg font-light text-primary">{metric.val}%</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[10px] font-mono tracking-widest text-secondary uppercase">Architectural Summary</span>
+                      <p className="text-sm text-primary leading-relaxed">{analysisResult.summary}</p>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <span className="text-[10px] font-mono tracking-widest text-secondary uppercase">Strategic Upgrades</span>
+                      {analysisResult.recommendations.map((rec, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 bg-accent/5 border border-accent/20 rounded-sm">
+                          <CheckCircle2 size={14} className="text-accent mt-0.5 shrink-0" />
+                          <p className="text-xs text-primary leading-relaxed">{rec}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-muted gap-4">
+                    <Building size={32} className="opacity-50" />
+                    <span className="text-xs font-mono tracking-widest uppercase text-center leading-relaxed">
+                      Awaiting spatial input.<br/>Upload imagery to commence diagnostics.
+                    </span>
+                  </div>
+                )}
+              </div>
+            </motion.section>
+          )}
+
+          {/* TAB 3: PROJECTS */}
+          {activeTab === "projects" && (
+            <motion.section 
+              key="projects"
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="w-full"
+            >
+              {generatedProjects.length === 0 ? (
+                <div className="w-full py-32 flex flex-col items-center justify-center glass-panel rounded-sm gap-4">
+                  <Box size={32} className="text-muted opacity-50" />
+                  <span className="text-xs font-mono tracking-widest text-secondary uppercase">No Systems Generated</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {generatedProjects.map((session) => (
+                    <div 
+                      key={session.id}
+                      onClick={() => router.push(`/canvas?session=${session.id}`)}
+                      className="group relative aspect-[4/5] glass-panel rounded-sm overflow-hidden cursor-pointer hover:border-accent/50 transition-colors"
+                    >
+                      {session.assets?.[0]?.url ? (
+                        <img src={session.assets[0].url} alt={session.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-elevated"><ImageIcon size={32} className="text-muted" /></div>
+                      )}
+                      
+                      <button onClick={(e) => deleteProject(e, session.id)} className="absolute top-4 right-4 p-2 bg-background/80 backdrop-blur rounded-sm text-secondary hover:text-red-400 border border-architectural opacity-0 group-hover:opacity-100 transition-all">
+                        <Trash2 size={14} />
+                      </button>
+
+                      <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-background via-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end">
+                        <span className="w-max px-2 py-1 bg-accent/20 border border-accent/30 text-[9px] font-mono tracking-widest text-accent uppercase rounded-sm mb-3">
+                          {session.mode?.replace(/-/g, ' ')}
+                        </span>
+                        <h4 className="text-sm font-medium text-primary line-clamp-2 leading-snug">{session.prompt}</h4>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.section>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

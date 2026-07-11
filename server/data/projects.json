@@ -1,0 +1,266 @@
+[
+  {
+    "id": "9b78bab8-3b13-4911-9142-7b1611a52c94",
+    "name": "Create a complete brand identity for an AI startup called PRANA.\n\nThe company develops AI-powered to",
+    "prompt": "Create a complete brand identity for an AI startup called PRANA.\n\nThe company develops AI-powered tools for architecture, urban planning, and sustainable campus transformation.\n\nGenerate a premium visual identity including logo concept, color palette, typography direction, iconography, branding style, presentation mockups, and modern technology aesthetic inspired by Apple and Autodesk.",
+    "effective_prompt": "Create a complete brand identity for an AI startup called PRANA.\n\nThe company develops AI-powered tools for architecture, urban planning, and sustainable campus transformation.\n\nGenerate a premium visual identity including logo concept, color palette, typography direction, iconography, branding style, presentation mockups, and modern technology aesthetic inspired by Apple and Autodesk.. Premium brand identity concept, professional visual system, distinctive identity territory, iconic symbol language, cohesive color palette direction, stark typography personality, mockup application context, visual system consistency, corporate brand mood.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 7822219510749878171,
+    "width": 768,
+    "height": 768,
+    "filename": "9b78bab8-3b13-4911-9142-7b1611a52c94.png",
+    "asset_url": "/generated/9b78bab8-3b13-4911-9142-7b1611a52c94.png",
+    "mode": "brand-concept",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-10T20:37:47.723421+00:00",
+    "assets": [
+      {
+        "url": "/generated/9b78bab8-3b13-4911-9142-7b1611a52c94.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "5a39351d-ede5-4f9b-8bf1-7f34f969d73c",
+    "name": "Design a complete innovation district for a university campus including startup incubation centers, ",
+    "prompt": "Design a complete innovation district for a university campus including startup incubation centers, AI research laboratories, green public plazas, smart parking, autonomous buses, drone logistics, renewable energy systems, and collaborative outdoor workspaces while maintaining architectural harmony with the original campus.",
+    "effective_prompt": "Design a complete innovation district for a university campus including startup incubation centers, AI research laboratories, green public plazas, smart parking, autonomous buses, drone logistics, renewable energy systems, and collaborative outdoor workspaces while maintaining architectural harmony with the original campus.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 13522947532681730953,
+    "width": 768,
+    "height": 768,
+    "filename": "5a39351d-ede5-4f9b-8bf1-7f34f969d73c.png",
+    "asset_url": "/generated/5a39351d-ede5-4f9b-8bf1-7f34f969d73c.png",
+    "mode": "image-generation",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-10T20:39:16.425855+00:00",
+    "assets": [
+      {
+        "url": "/generated/5a39351d-ede5-4f9b-8bf1-7f34f969d73c.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "a943393c-0847-4873-9a67-2c27aed66cd5",
+    "name": "Imagine the Presidency University Bengaluru campus after receiving a ₹500 crore modernization grant ",
+    "prompt": "Imagine the Presidency University Bengaluru campus after receiving a ₹500 crore modernization grant in 2035. Preserve all iconic buildings while introducing world-class sustainable architecture, AI-enabled classrooms, autonomous campus mobility, solar-powered infrastructure, climate-responsive landscaping, innovation hubs, advanced robotics laboratories, immersive mixed reality learning environments, rooftop gardens, smart pedestrian streets, water conservation systems, and public collaboration spaces. Produce an ultra-realistic architectural visualization suitable for an international design competition.",
+    "effective_prompt": "Imagine the Presidency University Bengaluru campus after receiving a ₹500 crore modernization grant in 2035. Preserve all iconic buildings while introducing world-class sustainable architecture, AI-enabled classrooms, autonomous campus mobility, solar-powered infrastructure, climate-responsive landscaping, innovation hubs, advanced robotics laboratories, immersive mixed reality learning environments, rooftop gardens, smart pedestrian streets, water conservation systems, and public collaboration spaces. Produce an ultra-realistic architectural visualization suitable for an international design competition.. Architectural visualization, photorealistic, adaptive reuse, preservation of existing structural elements, climate-responsive design, matching Bengaluru tropical savanna climate, monsoon-resilient structural features, shaded circulation, passive cooling corridors, solar infrastructure, rainwater harvesting setups, universal accessibility, premium materials, high architectural precision.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 4135114268842099211,
+    "width": 768,
+    "height": 768,
+    "filename": "a943393c-0847-4873-9a67-2c27aed66cd5.png",
+    "asset_url": "/generated/a943393c-0847-4873-9a67-2c27aed66cd5.png",
+    "mode": "campus-vision",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-10T20:49:32.751712+00:00",
+    "assets": [
+      {
+        "url": "/generated/a943393c-0847-4873-9a67-2c27aed66cd5.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "507d6fef-9db8-47ff-9993-ea1b90381cb4",
+    "name": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings w",
+    "prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.",
+    "effective_prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 2693523295855581122,
+    "width": 768,
+    "height": 768,
+    "filename": "507d6fef-9db8-47ff-9993-ea1b90381cb4.png",
+    "asset_url": "/generated/507d6fef-9db8-47ff-9993-ea1b90381cb4.png",
+    "mode": "image-generation",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-10T20:52:47.744678+00:00",
+    "assets": [
+      {
+        "url": "/generated/507d6fef-9db8-47ff-9993-ea1b90381cb4.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "7e26e892-01a1-402f-b102-32e3aee1eda2",
+    "name": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings w",
+    "prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.",
+    "effective_prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.. Architectural visualization, photorealistic, adaptive reuse, preservation of existing structural elements, climate-responsive design, matching Bengaluru tropical savanna climate, monsoon-resilient structural features, shaded circulation, passive cooling corridors, solar infrastructure, rainwater harvesting setups, universal accessibility, premium materials, high architectural precision.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 6903602974076829243,
+    "width": 768,
+    "height": 768,
+    "filename": "7e26e892-01a1-402f-b102-32e3aee1eda2.png",
+    "asset_url": "/generated/7e26e892-01a1-402f-b102-32e3aee1eda2.png",
+    "mode": "campus-vision",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T04:00:52.192167+00:00",
+    "assets": [
+      {
+        "url": "/generated/7e26e892-01a1-402f-b102-32e3aee1eda2.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "1b1a0750-2918-4431-b08a-38991ed766f1",
+    "name": "Imagine the Presidency University Bengaluru campus after receiving a ₹500 crore modernization grant ",
+    "prompt": "Imagine the Presidency University Bengaluru campus after receiving a ₹500 crore modernization grant in 2035. Preserve all iconic buildings while introducing world-class sustainable architecture, AI-enabled classrooms, autonomous campus mobility, solar-powered infrastructure, climate-responsive landscaping, innovation hubs, advanced robotics laboratories, immersive mixed reality learning environments, rooftop gardens, smart pedestrian streets, water conservation systems, and public collaboration spaces. Produce an ultra-realistic architectural visualization suitable for an international design competition.",
+    "effective_prompt": "Imagine the Presidency University Bengaluru campus after receiving a ₹500 crore modernization grant in 2035. Preserve all iconic buildings while introducing world-class sustainable architecture, AI-enabled classrooms, autonomous campus mobility, solar-powered infrastructure, climate-responsive landscaping, innovation hubs, advanced robotics laboratories, immersive mixed reality learning environments, rooftop gardens, smart pedestrian streets, water conservation systems, and public collaboration spaces. Produce an ultra-realistic architectural visualization suitable for an international design competition.. Architectural visualization, photorealistic, adaptive reuse, preservation of existing structural elements, climate-responsive design, matching Bengaluru tropical savanna climate, monsoon-resilient structural features, shaded circulation, passive cooling corridors, solar infrastructure, rainwater harvesting setups, universal accessibility, premium materials, high architectural precision.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 10362890594071103556,
+    "width": 768,
+    "height": 768,
+    "filename": "1b1a0750-2918-4431-b08a-38991ed766f1.png",
+    "asset_url": "/generated/1b1a0750-2918-4431-b08a-38991ed766f1.png",
+    "mode": "campus-vision",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T04:16:05.895441+00:00",
+    "assets": [
+      {
+        "url": "/generated/1b1a0750-2918-4431-b08a-38991ed766f1.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "21650cf8-0289-4180-bcb6-564050e8c3c4",
+    "name": "Design a complete innovation district for a university campus including startup incubation centers, ",
+    "prompt": "Design a complete innovation district for a university campus including startup incubation centers, AI research laboratories, green public plazas, smart parking, autonomous buses, drone logistics, renewable energy systems, and collaborative outdoor workspaces while maintaining architectural harmony with the original campus.",
+    "effective_prompt": "Design a complete innovation district for a university campus including startup incubation centers, AI research laboratories, green public plazas, smart parking, autonomous buses, drone logistics, renewable energy systems, and collaborative outdoor workspaces while maintaining architectural harmony with the original campus.. Architectural visualization, photorealistic, adaptive reuse, preservation of existing structural elements, climate-responsive design, matching Bengaluru tropical savanna climate, monsoon-resilient structural features, shaded circulation, passive cooling corridors, solar infrastructure, rainwater harvesting setups, universal accessibility, premium materials, high architectural precision.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 3554601673535501014,
+    "width": 768,
+    "height": 768,
+    "filename": "21650cf8-0289-4180-bcb6-564050e8c3c4.png",
+    "asset_url": "/generated/21650cf8-0289-4180-bcb6-564050e8c3c4.png",
+    "mode": "campus-vision",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T04:17:09.425128+00:00",
+    "assets": [
+      {
+        "url": "/generated/21650cf8-0289-4180-bcb6-564050e8c3c4.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "c1e25d05-1e0c-4bcf-92d2-6d23871e6152",
+    "name": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings w",
+    "prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering. Add a cyberpunk 2066 aesthetic vibe to the infrastructure",
+    "effective_prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering. Add a cyberpunk 2066 aesthetic vibe to the infrastructure. Architectural visualization, photorealistic, adaptive reuse, preservation of existing structural elements, climate-responsive design, matching Bengaluru tropical savanna climate, monsoon-resilient structural features, shaded circulation, passive cooling corridors, solar infrastructure, rainwater harvesting setups, universal accessibility, premium materials, high architectural precision.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 82256089415647346,
+    "width": 768,
+    "height": 768,
+    "filename": "c1e25d05-1e0c-4bcf-92d2-6d23871e6152.png",
+    "asset_url": "/generated/c1e25d05-1e0c-4bcf-92d2-6d23871e6152.png",
+    "mode": "campus-vision",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T04:35:12.802988+00:00",
+    "assets": [
+      {
+        "url": "/generated/c1e25d05-1e0c-4bcf-92d2-6d23871e6152.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "1cffb99c-e7c4-4e81-af05-287bc643ff78",
+    "name": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings w",
+    "prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.\ninclude more parking spaces",
+    "effective_prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.\ninclude more parking spaces",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 11029735704806875172,
+    "width": 768,
+    "height": 768,
+    "filename": "1cffb99c-e7c4-4e81-af05-287bc643ff78.png",
+    "asset_url": "/generated/1cffb99c-e7c4-4e81-af05-287bc643ff78.png",
+    "mode": "image-generation",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T05:21:58.151280+00:00",
+    "assets": [
+      {
+        "url": "/generated/1cffb99c-e7c4-4e81-af05-287bc643ff78.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "19999256-99e2-4810-b295-2a253f6228db",
+    "name": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings w",
+    "prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.",
+    "effective_prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.. Architectural visualization, photorealistic, adaptive reuse, preservation of existing structural elements, climate-responsive design, matching Bengaluru tropical savanna climate, monsoon-resilient structural features, shaded circulation, passive cooling corridors, solar infrastructure, rainwater harvesting setups, universal accessibility, premium materials, high architectural precision.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 9439439644045351740,
+    "width": 768,
+    "height": 768,
+    "filename": "19999256-99e2-4810-b295-2a253f6228db.png",
+    "asset_url": "/generated/19999256-99e2-4810-b295-2a253f6228db.png",
+    "mode": "campus-vision",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T05:23:18.201215+00:00",
+    "assets": [
+      {
+        "url": "/generated/19999256-99e2-4810-b295-2a253f6228db.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "28518781-f9ec-4481-a5d7-cdf2b69ca499",
+    "name": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings w",
+    "prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.",
+    "effective_prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 7600327100249122960,
+    "width": 768,
+    "height": 768,
+    "filename": "28518781-f9ec-4481-a5d7-cdf2b69ca499.png",
+    "asset_url": "/generated/28518781-f9ec-4481-a5d7-cdf2b69ca499.png",
+    "mode": "image-generation",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T05:41:00.598132+00:00",
+    "assets": [
+      {
+        "url": "/generated/28518781-f9ec-4481-a5d7-cdf2b69ca499.png",
+        "kind": "image"
+      }
+    ]
+  },
+  {
+    "id": "58efeb01-044a-4ab6-b760-51a61300ddc8",
+    "name": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings w",
+    "prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.\nINClude more parking spaces",
+    "effective_prompt": "Visualize this university campus in the year 2040. Preserve the identity of the existing buildings while integrating autonomous electric shuttle lanes, AI-powered information kiosks, solar glass facades, vertical gardens, smart classrooms, robotic maintenance systems, drone delivery zones, sustainable research hubs, and immersive student collaboration spaces. Ultra realistic architectural rendering.\nINClude more parking spaces",
+    "provider": "comfyui",
+    "model": "flux1-schnell-fp8.safetensors",
+    "seed": 14648277159443507985,
+    "width": 768,
+    "height": 768,
+    "filename": "58efeb01-044a-4ab6-b760-51a61300ddc8.png",
+    "asset_url": "/generated/58efeb01-044a-4ab6-b760-51a61300ddc8.png",
+    "mode": "image-generation",
+    "workflow": "prana_flux_schnell_api.json",
+    "created_at": "2026-07-11T05:57:02.790493+00:00",
+    "assets": [
+      {
+        "url": "/generated/58efeb01-044a-4ab6-b760-51a61300ddc8.png",
+        "kind": "image"
+      }
+    ]
+  }
+]
